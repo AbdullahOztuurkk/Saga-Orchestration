@@ -1,0 +1,11 @@
+﻿using MassTransit;
+using SharedLib.ValueObject;
+
+namespace SharedLib.Contracts;
+
+//CorrelationId has been added with CorrelatedBy interface.
+//It used for update states in state machine.
+public interface IStockReservedEvent : CorrelatedBy<Guid>
+{
+    public List<OrderItemMessage> OrderItems { get; set; }
+}
