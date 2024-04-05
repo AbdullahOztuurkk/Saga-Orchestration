@@ -1,6 +1,5 @@
 ﻿using MassTransit;
 using SagaStateMachineWorkerService.Data;
-using SagaStateMachineWorkerService.Models;
 using SharedLib;
 using SharedLib.Contracts;
 using SharedLib.Events;
@@ -65,8 +64,8 @@ public partial class OrderStateMachine : MassTransitStateMachine<OrderStateInsta
                 Console.WriteLine($"OrderCreatedRequestEvent After:\n{context.Saga}");
             }));
 
-        //State set as StockReserved while stockreservedevent published and current state is OrderCreated
         During(OrderCreated,
+            //State set as StockReserved while StockReservedEvent published and current state is OrderCreated
             When(StockReservedEvent)
                 .TransitionTo(StockReserved)
                 .Send(new Uri($"queue:{QueueNames.PaymentStockReservedRequest}"), context => new StockReservedRequestPaymentEvent(context.Message.CorrelationId)
@@ -94,13 +93,14 @@ public partial class OrderStateMachine : MassTransitStateMachine<OrderStateInsta
                 })
                 .Then(context => { Console.WriteLine($"StockNotReservedEvent After:\n{context.Saga}"); }));
 
-        //State set as PaymentSucceeded while PaymentCompletedEvent published and current state is StockReserved
         During(StockReserved,
+            //State set as PaymentSucceeded while PaymentCompletedEvent published and current state is StockReserved
             When(PaymentCompletedEvent)
                 .TransitionTo(PaymentSucceeded)
                 .Publish(context => new OrderRequestCompletedEvent { OrderId = context.Saga.OrderId })
                 .Then(context => { Console.WriteLine($"PaymentCompletedEvent After:\n{context.Saga}"); })
                 .Finalize(),
+            //State set as PaymentFailed while PaymentFailedEvent published and current state is StockReserved
             When(PaymentFailedEvent)
                 .TransitionTo(PaymentFailed)
                 .Publish(context => new OrderRequestFailedEvent()
@@ -111,5 +111,7 @@ public partial class OrderStateMachine : MassTransitStateMachine<OrderStateInsta
                 .Send(new Uri($"queue:{QueueNames.StockRollback}"), context => new StockRollbackEvent() { OrderItems = context.Message.OrderItems })
                 .Then(context => { Console.WriteLine($"PaymentFailedEvent After:\n{context.Saga}"); }));
 
+        //Delete all db record that state is Final if event series are completed successfully
+        SetCompletedWhenFinalized();
     }
 }
