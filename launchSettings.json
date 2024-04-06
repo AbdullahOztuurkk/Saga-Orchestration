@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "order.api": "StartDebugging",
+        "payment.api": "StartDebugging",
+        "stock.api": "StartDebugging",
+        "sagastatemachineworkerservice": "StartDebugging"
+      }
+    }
+  }
+}

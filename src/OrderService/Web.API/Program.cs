@@ -27,7 +27,11 @@ builder.Services.AddMassTransit(conf =>
     conf.AddConsumer<OrderRequestCompletedEventConsumer>();
     conf.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetConnectionString("RabbitMq"));
+        cfg.Host("s_rabbitmq",(auth) =>
+        {
+            auth.Username("guest");
+            auth.Password("guest");
+        });
 
         cfg.ReceiveEndpoint(QueueNames.OrderRequestFailed, e =>
         {
@@ -49,12 +53,9 @@ if (context.Database.GetPendingMigrations().Any())
     await context.Database.MigrateAsync();
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

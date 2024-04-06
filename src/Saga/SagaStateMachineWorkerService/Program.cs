@@ -26,7 +26,11 @@ IHost host = Host.CreateDefaultBuilder(args)
 
             cfg.AddBus((provider) => Bus.Factory.CreateUsingRabbitMq(busConf =>
             {
-                busConf.Host(hostContext.Configuration.GetConnectionString("RabbitMq"));
+                busConf.Host("s_rabbitmq",(auth) =>
+                {
+                    auth.Username("guest");
+                    auth.Password("guest");
+                });
 
                 //Set Initial state via listen saga queue
                 busConf.ReceiveEndpoint(QueueNames.OrderSaga, e =>

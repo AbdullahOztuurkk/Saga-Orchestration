@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+    order.api:
+        image: ${DOCKER_REGISTRY-}order_api
+        build:
+            context: .
+            dockerfile: src/OrderService/Web.API/Dockerfile
+
+    payment.api:
+        image: ${DOCKER_REGISTRY-}payment_api
+        build:
+            context: .
+            dockerfile: src/PaymentService/Web.API/Dockerfile
+
+    stock.api:
+        image: ${DOCKER_REGISTRY-}stock_api
+        build:
+            context: .
+            dockerfile: src/StockService/Web.API/Dockerfile
+
+    saga.state.machine:
+        image: ${DOCKER_REGISTRY-}saga_state_machine
+        build:
+            context: .
+            dockerfile: src/Saga/SagaStateMachineWorkerService/Dockerfile
+
+    s_sqlserver:
+        container_name: c_sqlserver
+        image: mcr.microsoft.com/mssql/server:2019-latest
+
+    s_rabbitmq:
+        container_name: c_rabbitmq
+        image: rabbitmq:3-management

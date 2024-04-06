@@ -1,5 +1,6 @@
 ﻿using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using SagaStateMachineWorkerService.Models;
 
 namespace SagaStateMachineWorkerService.Data;
@@ -16,5 +17,21 @@ public class OrderStateDbContext : SagaDbContext
     protected override IEnumerable<ISagaClassMap> Configurations
     {
         get { yield return new OrderStateMap(); }
+    }
+}
+
+public class OrderStateDbContextDesignTimeFactory : IDesignTimeDbContextFactory<OrderStateDbContext>
+{
+    static string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    IConfiguration configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile($"appsettings.{env}.json", optional: false, reloadOnChange: true)
+            .Build();
+
+    public OrderStateDbContext CreateDbContext(string[] args)
+    {
+        var builder = new DbContextOptionsBuilder<OrderStateDbContext>();
+        builder.UseSqlServer(configuration.GetConnectionString("SqlConnection"));
+        return new OrderStateDbContext(builder.Options);
     }
 }

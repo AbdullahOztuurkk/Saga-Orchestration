@@ -28,8 +28,12 @@ builder.Services.AddMassTransit(conf =>
     conf.AddConsumer<StockRollbackConsumer>();
     conf.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetConnectionString("RabbitMq"));
-        
+        cfg.Host("s_rabbitmq", (auth) =>
+        {
+            auth.Username("guest");
+            auth.Password("guest");
+        });
+
         cfg.ReceiveEndpoint(QueueNames.StockOrderCreated, e =>
         {
             e.ConfigureConsumer<OrderCreatedEventConsumer>(context);
@@ -60,12 +64,9 @@ if (!context.Stocks.Any())
     await context.SaveChangesAsync();
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

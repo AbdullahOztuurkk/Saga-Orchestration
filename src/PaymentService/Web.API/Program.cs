@@ -17,7 +17,11 @@ builder.Services.AddMassTransit(conf =>
     conf.AddConsumer<StockReservedRequestPaymentEventConsumer>();
     conf.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration.GetConnectionString("RabbitMq"));
+        cfg.Host("s_rabbitmq", (auth) =>
+        {
+            auth.Username("guest");
+            auth.Password("guest");
+        });
         cfg.ReceiveEndpoint(QueueNames.PaymentStockReservedRequest, e =>
         {
             e.ConfigureConsumer<StockReservedRequestPaymentEventConsumer>(context);
@@ -27,12 +31,9 @@ builder.Services.AddMassTransit(conf =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

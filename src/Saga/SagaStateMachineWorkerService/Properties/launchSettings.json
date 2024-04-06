@@ -1,11 +1,15 @@
-﻿{
+{
   "profiles": {
     "SagaStateMachineWorkerService": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:7006",
+      "dotnetRunMessages": true
+    },
+    "Docker": {
+      "commandName": "Docker"
     }
   }
 }
